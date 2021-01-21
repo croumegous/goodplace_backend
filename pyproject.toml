@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "good_place"
+version = "0.1.0"
+description = "GoodPlace is a classified ads website project"
+authors = ["Mishozu <cyril.roumegous@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.62.0"
+pytest = "^6.2.0"
+requests = "^2.25.0"
+uvicorn = "^0.13.1"
+pylint = "^2.6.0"
+pre-commit = "^2.9.3"
+black = "^20.8b1"
+isort = "^5.6.4"
+dynaconf = "^3.1.2"
+psycopg2 = "^2.8.6"
+uvloop = "^0.14.0"
+passlib = "^1.7.4"
+python-jose = "^3.2.0"
+python-multipart = "^0.0.5"
+pydantic = {extras = ["email"], version = "^1.7.3"}
+python-dotenv = "^0.15.0"
+tortoise-orm = {extras = ["asyncpg"], version = "^0.16.19"}
+aerich = "^0.4.3"
+aiomysql = "^0.0.21"
+schemathesis = "^2.8.5"
+asynctest = "^0.13.0"
+bcrypt = "^3.2.0"
+mypy = "^0.790"
+gunicorn = "^20.0.4"
+pytest-asyncio = "^0.14.0"
+pytest-cov = "^2.11.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

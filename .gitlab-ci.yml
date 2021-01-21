@@ -1,0 +1,67 @@
+image: croumegous/python-poetry
+
+services:
+  - name: postgres:13.1-alpine
+    alias: postgres
+
+variables:
+    POSTGRES_DB: good_place
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+
+
+
+cache:
+  paths:
+    - .cache/pypoetry
+    - backend/.venv
+    
+before_script:
+  - |    
+    cat .env.template > .env
+    poetry config virtualenvs.in-project true
+    poetry install
+
+
+
+stages:
+  - validation
+  - test
+
+
+###### VALIDATION ######
+lint:pylint:
+  stage: validation
+  script:
+    - set -x
+    - poetry run pylint good_place/*
+
+lint:black:
+  stage: validation
+  script:
+    - set -x
+    - poetry run black --check .
+
+lint:isort:
+  stage: validation
+  script:
+    - set -x
+    - poetry run isort --profile black -c .
+  allow_failure: true
+
+###### TEST ######
+test:pytest:
+  stage: test
+  script: 
+    - set -x
+    - poetry run aerich upgrade
+    - poetry run pytest -v --cov
+  allow_failure: false
+
+test:schemathesis:
+  stage: test
+  script: 
+    - set -x
+    - poetry run aerich upgrade
+    - poetry run pytest -v -m schemathesis --no-cov
+  allow_failure: true
