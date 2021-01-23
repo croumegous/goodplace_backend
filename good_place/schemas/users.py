@@ -58,3 +58,21 @@ class SchemaUserCreate(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class SchemaUserLogin(BaseModel):
+    """
+    Basic schema for login authentication
+    """
+
+    email: EmailStr
+    password: constr(min_length=8)
+
+    @validator("password")
+    def validate_password(cls, value):
+        if not re.match(r"[\w@_!#$%^&*=()<>?/|}{~:\]\\\[]+", value):
+            raise ValidationError(f"{value} contains unsupported character")
+        return value
+
+    class Config:
+        orm_mode = True
