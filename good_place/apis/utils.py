@@ -3,19 +3,21 @@ Useful functions for the api
 """
 
 # pylint: disable=no-member
-# pylint: disable=fixme
 # pylint: disable=no-name-in-module
 import re
 from typing import Optional
 
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer
+from jose import jwt
 from pydantic import BaseModel
 
+from good_place.core.security import ALGORITHM, SECRET_KEY_JWT
+from good_place.crud.users import CRUDUser
 from good_place.schemas.users import SchemaUser
 
 
-# TODO
-def get_current_user() -> Optional[SchemaUser]:
+async def get_current_user(token: str = Depends(HTTPBearer())) -> Optional[SchemaUser]:
     """
     Parse the JWT token included in the authorization header and returns a SchemaUser object
     which contains information about the currently logged in user
@@ -23,11 +25,23 @@ def get_current_user() -> Optional[SchemaUser]:
     Returns:
         A SchemaUser or None if unable to find/parse a jwt token
     """
-    return None
+    try:
+        payload = jwt.decode(token.credentials, SECRET_KEY_JWT, algorithms=ALGORITHM)
+        token_id = payload.get("sub")
+    except (jwt.JWTError, AttributeError) as exc:
+        raise HTTPException(
+            status_code=403,
+            detail="Could not validate credentials",
+        ) from exc
+    user = await CRUDUser.get_user(token_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 
 def check_sort_field(model: BaseModel, value: str) -> str:
-    """Check if the provided field is part of model
+    """Used to parse the "sortField" query parameter
+    Check if the provided field is part of model
     Args:
         model (BaseModel): Pydantic model to get available fields
         value (str): the value as a string to be compared with the model

@@ -63,6 +63,28 @@ async def create_user(user_data: SchemaUserCreate) -> Any:
     return user
 
 
+# GET /users/me : get current_user profile
+@router.get("/me", response_model=SchemaUser)
+async def read_user_me(current_user: Users = Depends(get_current_user)) -> Any:
+    """
+    Get current user.
+    """
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
+    return current_user
+
+
+# PUT /users/me : update current_user profile
+@router.put("/me", response_model=SchemaUser)
+async def update_user_me(
+    user_data: SchemaUserCreate, current_user: Users = Depends(get_current_user)
+) -> Any:
+    """
+    Update own user
+    """
+    return None
+
+
 @router.get("/{user_id}", response_model=SchemaUser)
 async def read_user(user_id: UUID) -> Optional[SchemaUser]:
     """
@@ -86,28 +108,6 @@ async def update_user(user_id: UUID, user_data: SchemaUserCreate) -> Any:
             detail=f"Error while updating user in database: {exc}",
         ) from exc
     return user
-
-
-# GET /users/me : get current_user profile
-@router.get("/me", response_model=SchemaUser)
-async def read_user_me(current_user: Users = Depends(get_current_user)) -> Any:
-    """
-    Get current user.
-    """
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
-    return current_user
-
-
-# PUT /users/me : update current_user profile
-@router.put("/me", response_model=SchemaUser)
-async def update_user_me(
-    user_data: SchemaUserCreate, current_user: Users = Depends(get_current_user)
-) -> Any:
-    """
-    Update own user
-    """
-    return None
 
 
 # add current_user: Users = Depends(get_current_user)
