@@ -12,7 +12,8 @@ from fastapi.security import HTTPBearer
 from jose import jwt
 from pydantic import BaseModel
 
-from good_place.core.security import ALGORITHM, SECRET_KEY_JWT
+from good_place.core.security import ALGORITHM
+from good_place.core.settings import CONFIG
 from good_place.crud.users import CRUDUser
 from good_place.schemas.users import SchemaUser
 
@@ -22,12 +23,23 @@ async def get_current_user(token: str = Depends(HTTPBearer())) -> Optional[Schem
     Parse the JWT token included in the authorization header and returns a SchemaUser object
     which contains information about the currently logged in user
 
+    Args:
+        Authorization token
     Returns:
         A SchemaUser or None if unable to find/parse a jwt token
     """
     try:
-        payload = jwt.decode(token.credentials, SECRET_KEY_JWT, algorithms=ALGORITHM)
+        payload = jwt.decode(
+            token.credentials,
+            CONFIG.get("ACCESS_TOKEN_SECRET_KEY"),
+            algorithms=ALGORITHM,
+        )
         token_id = payload.get("sub")
+    except jwt.ExpiredSignatureError as exc:
+        raise HTTPException(
+            status_code=401,
+            detail="JWT access_token is expired",
+        ) from exc
     except (jwt.JWTError, AttributeError) as exc:
         raise HTTPException(
             status_code=403,
@@ -37,6 +49,32 @@ async def get_current_user(token: str = Depends(HTTPBearer())) -> Optional[Schem
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+async def verify_refresh_token(refresh_token: str) -> str:
+    """Check if refresh token is valid.
+
+    Args:
+        refresh_token (str)
+    Returns:
+        str: the user id of this token
+    """
+    try:
+        payload = jwt.decode(
+            refresh_token, CONFIG.get("REFRESH_TOKEN_SECRET_KEY"), algorithms=ALGORITHM
+        )
+        token_id = payload.get("sub")
+    except jwt.ExpiredSignatureError as exc:
+        raise HTTPException(
+            status_code=401,
+            detail="JWT refresh_token is expired",
+        ) from exc
+    except (jwt.JWTError, AttributeError) as exc:
+        raise HTTPException(
+            status_code=403,
+            detail="Could not validate refresh_token",
+        ) from exc
+    return str(token_id)
 
 
 def check_sort_field(model: BaseModel, value: str) -> str:

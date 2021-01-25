@@ -13,10 +13,9 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 ALGORITHM = "HS256"
-SECRET_KEY_JWT = CONFIG.get("SECRET_KEY_JWT")
 
 
-def create_access_token(subject: Union[str, Any]) -> str:
+def create_jwt_token(subject: Union[str, Any], refresh=False) -> str:
     """
     Create a JWT with subject as content
 
@@ -25,10 +24,20 @@ def create_access_token(subject: Union[str, Any]) -> str:
     Returns:
         Strting: Encoded JWT
     """
-    expire = datetime.utcnow() + timedelta(hours=CONFIG.get("JWT_EXPIRE_HOURS"))
+
+    if refresh:
+        expire = datetime.utcnow() + timedelta(days=CONFIG.get("JWT_EXPIRE_TIME"))
+        to_encode = {"exp": expire, "sub": str(subject)}
+        return jwt.encode(
+            to_encode, CONFIG.get("REFRESH_TOKEN_SECRET_KEY"), algorithm=ALGORITHM
+        )
+
+    expire = datetime.utcnow() + timedelta(minutes=CONFIG.get("JWT_EXPIRE_TIME"))
     to_encode = {"exp": expire, "sub": str(subject)}
 
-    return jwt.encode(to_encode, SECRET_KEY_JWT, algorithm=ALGORITHM)
+    return jwt.encode(
+        to_encode, CONFIG.get("ACCESS_TOKEN_SECRET_KEY"), algorithm=ALGORITHM
+    )
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
