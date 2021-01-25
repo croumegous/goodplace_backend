@@ -5,7 +5,7 @@ Users schema
 # pylint: disable-all
 import re
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, ValidationError, constr, validator
@@ -39,7 +39,7 @@ class SchemaUserCreate(BaseModel):
     first_name: constr(min_length=2)
     last_name: constr(min_length=2)
     email: EmailStr
-    phone_number: Optional[str]
+    phone_number: Union[None, str]
     nickname: constr(min_length=2)
     password: constr(min_length=8)
     is_admin: Optional[bool]
@@ -62,7 +62,7 @@ class SchemaUserCreate(BaseModel):
 
 class SchemaUserLogin(BaseModel):
     """
-    Basic schema for login authentication
+    Schema for login authentication
     """
 
     email: EmailStr
@@ -74,5 +74,10 @@ class SchemaUserLogin(BaseModel):
             raise ValidationError(f"{value} contains unsupported character")
         return value
 
-    class Config:
-        orm_mode = True
+
+class SchemaRefreshToken(BaseModel):
+    """
+    Schema used to refresh JWT token
+    """
+
+    refresh_token: str

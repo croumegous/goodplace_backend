@@ -9,6 +9,11 @@ poetry install
 
 # Run
 Rename .env.template to .env and set your own configuration.
+Generate a new ACCESS_TOKEN_SECRET_KEY and REFRESH_TOKEN_SECRET_KEY with : 
+```bash
+openssl rand 256 | base64
+```
+
 Before running the application you must create database table see [here](./migrations/README.md)
 ```bash
 poetry run uvicorn main:app --reload

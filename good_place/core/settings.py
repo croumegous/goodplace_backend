@@ -26,7 +26,8 @@ CONFIG = {
         f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_DATABASE_TEST')}"
     ),
     "MAX_INT_32BITS": int(os.getenv("MAX_INT_32BITS")),
-    "SECRET_KEY_JWT": os.getenv("SECRET_KEY_JWT"),
-    "JWT_EXPIRE_HOURS": int(os.getenv("JWT_EXPIRE_HOURS")),
+    "ACCESS_TOKEN_SECRET_KEY": os.getenv("ACCESS_TOKEN_SECRET_KEY"),
+    "REFRESH_TOKEN_SECRET_KEY": os.getenv("REFRESH_TOKEN_SECRET_KEY"),
+    "JWT_EXPIRE_TIME": int(os.getenv("JWT_EXPIRE_TIME", "15")),
     "CORS_ORIGIN": json.loads(os.getenv("CORS_ORIGIN")),
 }
