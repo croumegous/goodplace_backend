@@ -18,17 +18,22 @@ from good_place.schemas.users import SchemaUser, SchemaUserCreate
 router = APIRouter()
 
 
-# TODO change permission acces, implement current_user
+# TODO verify permission acces
 
 # GET /users/ : get all users
 @router.get("/", response_model=List[SchemaUser])
 async def read_users(
     page: int = Query(1, ge=1, le=CONFIG.get("MAX_INT_32BITS")),
     perPage: int = Query(50, ge=1, le=CONFIG.get("MAX_INT_32BITS")),
+    current_user: Users = Depends(get_current_user),
 ) -> Any:
     """
     Get all users
     """
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=403, detail="Forbiden user doesn't have enough privileges"
+        )
     return await CRUDUser.get_all_users(page=page, per_page=perPage)
 
 
@@ -38,21 +43,7 @@ async def create_user(user_data: SchemaUserCreate) -> Any:
     """
     Create new user
     """
-    if await CRUDUser.get_user_by_email(user_data.email):
-        raise HTTPException(
-            status_code=400, detail="A user with this email already exists"
-        )
-    if await CRUDUser.get_user_by_nickname(user_data.nickname):
-        raise HTTPException(
-            status_code=400, detail="A user with this nickname already exists"
-        )
-    if user_data.phone_number is not None and await CRUDUser.get_user_by_phone_number(
-        user_data.phone_number
-    ):
-        raise HTTPException(
-            status_code=400, detail="A user with this phone number already exists"
-        )
-
+    await CRUDUser.check_no_duplicate_user(user_data)
     try:
         user = await CRUDUser.create_user(user_data)
     except Exception as exc:
@@ -82,9 +73,19 @@ async def update_user_me(
     """
     Update own user
     """
-    return None
+    user = await CRUDUser.get_user(current_user.id)
+    await CRUDUser.check_no_duplicate_user(user_data, current_user.id)
+    try:
+        user = await CRUDUser.update_user(user, user_data)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error while updating user in database: {exc}",
+        ) from exc
+    return user
 
 
+# GET /users/<user_id> : get user profile by its id
 @router.get("/{user_id}", response_model=SchemaUser)
 async def read_user(user_id: UUID) -> Optional[SchemaUser]:
     """
@@ -100,6 +101,7 @@ async def update_user(user_id: UUID, user_data: SchemaUserCreate) -> Any:
     Update own user
     """
     user = await CRUDUser.get_user(user_id)
+    await CRUDUser.check_no_duplicate_user(user_data, update_id=user_id)
     try:
         user = await CRUDUser.update_user(user, user_data)
     except Exception as exc:
@@ -110,15 +112,18 @@ async def update_user(user_id: UUID, user_data: SchemaUserCreate) -> Any:
     return user
 
 
-# add current_user: Users = Depends(get_current_user)
 # DELETE /users/{user_id} : delete a user by its id only available for admin
 @router.delete("/{user_id}", response_model=SchemaUser)
-async def delete_user_by_id(user_id: UUID) -> Any:
+async def delete_user_by_id(
+    user_id: UUID, current_user: Users = Depends(get_current_user)
+) -> Any:
     """
     Delete specific user by its id
     """
-    # if not(current_user.is_admin or current_user.id == user_id):
-    #     raise HTTPException(status_code=400, detail="user doesn't have enough privileges")
+    if not (current_user.is_admin or current_user.id == user_id):
+        raise HTTPException(
+            status_code=403, detail="Forbiden user doesn't have enough privileges"
+        )
 
     user = await CRUDUser.delete_user(user_id)
     return user

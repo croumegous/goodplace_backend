@@ -28,7 +28,6 @@ from good_place.schemas.items import (
 router = APIRouter()
 
 # GET /items/: get list of items
-# response_model=Union[List[SchemaFullItem], List[SchemaItem]]
 @router.get("/", response_model=Union[SchemaFullItemResponse, SchemaItemResponse])
 async def read_items(
     page: int = Query(1, ge=1, le=CONFIG.get("MAX_INT_32BITS")),
@@ -91,35 +90,44 @@ async def create_item(
     return item
 
 
-# add current_user: Users = Depends(get_current_user)
 # PUT /items/<item_id> : update current_user location
 @router.put("/{item_id}", response_model=SchemaItem)
-async def update_item(item_data: SchemaItemCreate, item_id: UUID) -> Any:
+async def update_item(
+    item_data: SchemaItemCreate,
+    item_id: UUID,
+    current_user: Users = Depends(get_current_user),
+) -> Any:
     """
     Update item_id item
     """
-    # if not current_user:
-    #     raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
-    # item = await CRUDItem.get_item(item_id, details=False)
-    # if current_user.id != item.user_id:
-    #     raise HTTPException(status_code=403, detail="Forbiden user is not the owner of the item specified")
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
+    item = await CRUDItem.get_item(item_id, details=False)
+    if current_user.id != item.user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Forbiden user is not the owner of the item specified",
+        )
 
     item = await CRUDItem.update_item(item_data, item_id)
     return item
 
 
-# add current_user: Users = Depends(get_current_user)
 # PUT /items/<item_id> : update current_user location
 @router.delete("/{item_id}", response_model=SchemaItem)
-async def delete_item_by_id(item_id: UUID) -> Any:
+async def delete_item_by_id(
+    item_id: UUID, current_user: Users = Depends(get_current_user)
+) -> Any:
     """
     Update item_id item
     """
-    # if not current_user:
-    #     raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
-    # item = await CRUDItem.get_item(item_id, details=False)
-    # if current_user.id != item.user_id and not current_user.is_admin:
-    #     raise HTTPException(status_code=403, detail="Forbiden user is not the owner of the item specified")
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
+    item = await CRUDItem.get_item(item_id, details=False)
+    if current_user.id != item.user_id and not current_user.is_admin:
+        raise HTTPException(
+            status_code=403, detail="Forbiden user doesn't have enough privileges"
+        )
 
     item = await CRUDItem.delete_item(item_id)
     return item

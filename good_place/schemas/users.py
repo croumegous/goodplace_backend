@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, ValidationError, constr, validator
+from pydantic import BaseModel, EmailStr, HttpUrl, ValidationError, constr, validator
 
 
 class SchemaUser(BaseModel):
@@ -23,7 +23,7 @@ class SchemaUser(BaseModel):
     phone_number: Optional[str]
     nickname: str
     is_admin: bool
-    avatar_url: Optional[str]
+    avatar_url: Optional[HttpUrl]
     created_at: Optional[datetime]
 
     class Config:
@@ -39,7 +39,8 @@ class SchemaUserCreate(BaseModel):
     first_name: constr(min_length=2)
     last_name: constr(min_length=2)
     email: EmailStr
-    phone_number: Union[None, str]
+    phone_number: Optional[str]
+    avatar_url: Optional[HttpUrl]
     nickname: constr(min_length=2)
     password: constr(min_length=8)
     is_admin: Optional[bool]
