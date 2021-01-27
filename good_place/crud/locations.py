@@ -44,7 +44,9 @@ class CRUDLocation:
         return await Locations.exists(user_id=user_id)
 
     @staticmethod
-    async def get_location_by_user(user_id: uuid.UUID) -> Locations:
+    async def get_location_by_user(
+        user_id: uuid.UUID, allow_fail: bool = False
+    ) -> Locations:
         """Return location of the user
 
         Args:
@@ -55,7 +57,7 @@ class CRUDLocation:
             Locations: location model related to user
         """
         location = await QuerySet(Locations).filter(user_id=user_id).get_or_none()
-        if not location:
+        if not location and not allow_fail:
             raise HTTPException(
                 status_code=404, detail=f"Location related to user {user_id} not found"
             )

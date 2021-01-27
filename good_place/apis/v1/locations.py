@@ -2,7 +2,7 @@
 API route for locations
 """
 # pylint: disable=fixme
-from typing import Any
+from typing import Any, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -18,6 +18,18 @@ router = APIRouter()
 
 # TODO change permission acces, implement current_user
 
+
+# GET /locations/me : get current_user location
+@router.get("/me", response_model=Optional[SchemaLocation])
+async def read_location_me(current_user: Users = Depends(get_current_user)) -> Any:
+    """
+    Get current user location.
+    """
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
+    return await CRUDLocation.get_location_by_user(current_user.id, allow_fail=True)
+
+
 # GET /locations/<location_id> : get location by its id
 @router.get("/{loc_id}", response_model=SchemaLocation)
 async def read_location(loc_id: UUID) -> Any:
@@ -25,17 +37,6 @@ async def read_location(loc_id: UUID) -> Any:
     Get location by its id.
     """
     return await CRUDLocation.get_location(loc_id)
-
-
-# GET /locations/me : get current_user location
-@router.get("/me", response_model=SchemaLocation)
-async def read_location_me(current_user: Users = Depends(get_current_user)) -> Any:
-    """
-    Get current user location.
-    """
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
-    return CRUDLocation.get_location_by_user(current_user.id)
 
 
 # POST /locations/ : create a new location
@@ -49,7 +50,7 @@ async def create_location(
     """
     if not current_user:
         raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
-    if await CRUDLocation.location_by_user_exists(current_user.get("id")):
+    if await CRUDLocation.location_by_user_exists(current_user.id):
         raise HTTPException(
             status_code=400, detail="A location for this user already exists"
         )
@@ -75,9 +76,7 @@ async def update_location_me(
     if not current_user:
         raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
     try:
-        location = await CRUDLocation.update_location(
-            location_data, current_user.get("id")
-        )
+        location = await CRUDLocation.update_location(location_data, current_user.id)
     except Exception as exc:
         raise HTTPException(
             status_code=500,
@@ -95,7 +94,7 @@ async def delete_location_me(current_user: Users = Depends(get_current_user)) ->
     if not current_user:
         raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
     try:
-        location = await CRUDLocation.delete_location(current_user.get("id"))
+        location = await CRUDLocation.delete_location(current_user.id)
     except Exception as exc:
         raise HTTPException(
             status_code=500,
