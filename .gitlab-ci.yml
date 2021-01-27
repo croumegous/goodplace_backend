@@ -55,7 +55,7 @@ test:pytest:
   script: 
     - set -x
     - poetry run aerich upgrade
-    - poetry run pytest -v --cov
+    - poetry run pytest -v --cov=good_place tests/
   allow_failure: false
 
 test:schemathesis:
