@@ -24,11 +24,10 @@ LOCATION_ID5 = str(uuid.uuid4())
 users = (
     {
         "id": ADMIN_ID,
-        # "location_id": LOCATION_ID1,
         "first_name": "Bobby",
         "last_name": "Lemon",
         "nickname": "Bob17",
-        "avatar_url": "here.com",
+        "avatar_url": "http://here.com",
         "email": "hellomail@example.com",
         "password": "notsohashedpassword",
         "phone_number": "0505050505",
@@ -36,7 +35,6 @@ users = (
     },
     {
         "id": USER_ID1,
-        # "location_id": LOCATION_ID1,
         "first_name": "Jean",
         "last_name": "Pierre",
         "nickname": "Pierrot",
@@ -45,7 +43,6 @@ users = (
     },
     {
         "id": USER_ID2,
-        # "location_id": LOCATION_ID2,
         "first_name": "Mariah",
         "last_name": "Carey",
         "nickname": "AllIWantForChristmas",
@@ -54,7 +51,6 @@ users = (
     },
     {
         "id": USER_ID3,
-        # "location_id": LOCATION_ID3,
         "first_name": "Patrick",
         "last_name": "Camping",
         "nickname": "patoche",

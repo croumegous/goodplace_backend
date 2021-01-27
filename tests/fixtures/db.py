@@ -16,7 +16,7 @@ from good_place.main import app
 
 @pytest.fixture(scope="module")
 def client() -> Generator:
-    initializer(["good_place.db.models"], db_url=CONFIG.get("DB_DATABASE_URL_TEST"))
+    initializer(["good_place.db.models"], db_url=CONFIG.get("DB_DATABASE_URL"))
     with TestClient(app) as c:
         yield c
     finalizer()
