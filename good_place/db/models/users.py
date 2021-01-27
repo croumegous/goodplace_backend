@@ -12,7 +12,7 @@ from tortoise.models import Model
 
 class Users(Model):
     """
-    User represent a user account, it is necessary to create advertiseements
+    User represent a user account, it is necessary to create items
     """
 
     id = fields.UUIDField(pk=True, default=uuid.uuid4())

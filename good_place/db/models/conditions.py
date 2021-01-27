@@ -15,4 +15,4 @@ class Conditions(Model):
     """
 
     id = fields.UUIDField(pk=True, default=uuid.uuid4())
-    label = fields.CharField(max_length=50, null=False)
+    label = fields.CharField(max_length=50, null=False, unique=True)
