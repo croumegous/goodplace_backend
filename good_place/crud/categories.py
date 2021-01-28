@@ -2,6 +2,7 @@
 Categories CRUD
 """
 import uuid
+from typing import List
 
 from fastapi import HTTPException
 from tortoise.queryset import QuerySet
@@ -13,6 +14,22 @@ class CRUDCategory:
     """
     All categories crud function
     """
+
+    @staticmethod
+    async def get_all_category() -> List[Categories]:
+        """Return all categories in database"""
+        return await QuerySet(Categories).all()
+
+    @staticmethod
+    async def create_category(category) -> Categories:
+        """Create category in database
+
+        Args:
+            category (SchemaCategoryCreate): category to create
+        Returns:
+            Categories: the created category
+        """
+        return await Categories.create(id=uuid.uuid4(), label=category.label)
 
     @staticmethod
     async def get_category_by_id(category_id: uuid.UUID) -> Categories:
