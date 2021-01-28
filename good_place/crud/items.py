@@ -124,7 +124,9 @@ class CRUDItem:
             Items: Newly created item model
         """
         item.id = uuid.uuid4() if not item.id else item.id
-        condition_id = await CRUDCondition.get_id_by_condition(item.condition)
+        condition_id = None
+        if item.condition:
+            condition_id = await CRUDCondition.get_id_by_condition(item.condition)
         category_id = await CRUDCategory.get_id_by_category(item.category)
         db_item = await Items.create(
             id=item.id,
@@ -135,7 +137,8 @@ class CRUDItem:
             description=item.description,
             price=item.price,
         )
-        await CRUDImage.create_image_for_item(item.images, item.id)
+        if item.images:
+            await CRUDImage.create_image_for_item(item.images, item.id)
 
         return db_item
 

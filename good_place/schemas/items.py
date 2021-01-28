@@ -42,7 +42,7 @@ class SchemaItemCreate(BaseModel):
     id: Optional[UUID]
     condition: Optional[str]
     category: str
-    images: List[HttpUrl]
+    images: Optional[List[HttpUrl]]
     title: str
     description: str
     price: int
@@ -58,7 +58,7 @@ class SchemaFullItem(BaseModel):
     category: SchemaCategory
     user: SchemaUser
     location: SchemaLocation
-    images_list: List[Optional[SchemaImageUrlOnly]]
+    images_list: Optional[List[SchemaImageUrlOnly]]
     title: str
     description: str
     price: int

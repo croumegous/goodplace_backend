@@ -25,7 +25,7 @@ class CRUDImage:
             item_id (uuid.UUID): [description]
         """
 
-        for image in set(images):
+        for image in [set(images) for images in images if images.strip() != ""]:
             await Images.create(
                 id=uuid.uuid4(),
                 image_url=image,
