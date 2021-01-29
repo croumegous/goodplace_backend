@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, HttpUrl, ValidationError, constr, validator
+from pydantic import BaseModel, EmailStr, HttpUrl, constr, validator
 
 
 class SchemaUser(BaseModel):
@@ -48,13 +48,13 @@ class SchemaUserCreate(BaseModel):
     @validator("first_name", "last_name", "phone_number", "nickname")
     def validate_user(cls, value):
         if not re.match(r"[\w-]+", value):
-            raise ValidationError(f"{value} is not alphanumeric")
+            raise ValueError(f"{value} is not alphanumeric")
         return value
 
     @validator("password")
     def validate_password(cls, value):
         if not re.match(r"[\w@_!#$%^&*=()<>?/|}{~:\]\\\[]+", value):
-            raise ValidationError(f"{value} contains unsupported character")
+            raise ValueError(f"{value} contains unsupported character")
         return value
 
     class Config:
@@ -72,7 +72,7 @@ class SchemaUserLogin(BaseModel):
     @validator("password")
     def validate_password(cls, value):
         if not re.match(r"[\w@_!#$%^&*=()<>?/|}{~:\]\\\[]+", value):
-            raise ValidationError(f"{value} contains unsupported character")
+            raise ValueError(f"{value} contains unsupported character")
         return value
 
 

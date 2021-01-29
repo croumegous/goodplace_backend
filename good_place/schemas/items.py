@@ -7,7 +7,7 @@ from enum import Enum
 from typing import Any, List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, HttpUrl, ValidationError, validator
+from pydantic import BaseModel, HttpUrl, validator, PositiveInt
 
 from good_place.schemas.categories import SchemaCategory
 from good_place.schemas.conditions import SchemaCondition
@@ -45,8 +45,13 @@ class SchemaItemCreate(BaseModel):
     images: Optional[List[HttpUrl]]
     title: str
     description: str
-    price: int
+    price: PositiveInt
 
+    @validator("images")
+    def validate_image_list_length(cls, value):
+        if len(value) > 10:
+            raise ValueError(f"Too many images you can have at most 10 images per items")
+        return value
 
 class SchemaFullItem(BaseModel):
     """

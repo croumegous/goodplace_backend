@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, HttpUrl, ValidationError, validator
+from pydantic import BaseModel, HttpUrl
 
 
 class SchemaImage(BaseModel):

@@ -6,6 +6,7 @@ from good_place.main import app
 from tests.fixtures.db import client
 
 # Schemathesis is a modern API testing tool for web applications see : https://github.com/schemathesis/schemathesis
+schemathesis.fixups.install()
 
 schema = schemathesis.from_asgi("/openapi.json", app)
 

@@ -5,7 +5,7 @@ Conditions schema
 import re
 from uuid import UUID
 
-from pydantic import BaseModel, ValidationError, validator
+from pydantic import BaseModel, validator
 
 
 class SchemaCondition(BaseModel):
@@ -22,5 +22,5 @@ class SchemaConditionCreate(BaseModel):
     @validator("label")
     def validate_condition(cls, value):
         if not re.match(r"[\w-]+", value):
-            raise ValidationError(f"{value} is not alphanumeric")
+            raise ValueError(f"{value} is not alphanumeric")
         return value

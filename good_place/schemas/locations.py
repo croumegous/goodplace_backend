@@ -7,7 +7,7 @@ import re
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ValidationError, constr, validator
+from pydantic import BaseModel, constr, validator
 
 
 class SchemaLocation(BaseModel):
@@ -57,5 +57,5 @@ class SchemaLocationCreate(BaseModel):
     )
     def validate_location(cls, value):
         if not re.match(r"[\w-]+", value):
-            raise ValidationError(f"{value} is not alphanumeric")
+            raise ValueError(f"{value} is not alphanumeric")
         return value
