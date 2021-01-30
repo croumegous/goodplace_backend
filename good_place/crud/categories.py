@@ -29,7 +29,12 @@ class CRUDCategory:
         Returns:
             Categories: the created category
         """
-        return await Categories.create(id=uuid.uuid4(), label=category.label)
+        return await Categories.create(
+            id=uuid.uuid4(),
+            label=category.label,
+            icon=category.icon,
+            image=category.image,
+        )
 
     @staticmethod
     async def get_category_by_id(category_id: uuid.UUID) -> Categories:
@@ -48,7 +53,7 @@ class CRUDCategory:
         return category
 
     @staticmethod
-    async def get_id_by_category(categories_name: str) -> uuid.UUID:
+    async def get_id_by_category_label(category_name: str) -> uuid.UUID:
         """Get id of a category by its category name/label
 
         Args:
@@ -59,7 +64,7 @@ class CRUDCategory:
             uuid.UUID: id of the category
         """
         category_id = (
-            await QuerySet(Categories).filter(label=categories_name).get_or_none()
+            await QuerySet(Categories).filter(label=category_name).get_or_none()
         )
         if not category_id:
             raise HTTPException(status_code=404, detail="Category not found")

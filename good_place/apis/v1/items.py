@@ -2,9 +2,8 @@
 API route for items
 """
 # from typing import List
+# pylint: disable=too-many-arguments
 # pylint: disable=invalid-name
-# pylint: disable=no-else-return
-# pylint: disable=line-too-long
 
 from typing import Any, List, Union
 from uuid import UUID
@@ -13,6 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from good_place.apis.utils import check_sort_field, get_current_user
 from good_place.core.settings import CONFIG
+from good_place.crud.categories import CRUDCategory
 from good_place.crud.items import CRUDItem
 from good_place.crud.locations import CRUDLocation
 from good_place.crud.users import CRUDUser
@@ -33,6 +33,7 @@ async def read_items(
     page: int = Query(1, ge=1, le=CONFIG.get("MAX_INT_32BITS")),
     perPage: int = Query(50, ge=1, le=CONFIG.get("MAX_INT_32BITS")),
     maxPrice: int = Query(None, ge=0, le=CONFIG.get("MAX_INT_32BITS")),
+    category: str = None,
     sortField: str = None,
     details: bool = True,
 ) -> Any:
@@ -41,17 +42,20 @@ async def read_items(
     """
     if sortField:
         sortField = check_sort_field(SchemaItem, sortField)
+    if category:
+        category = await CRUDCategory.get_id_by_category_label(category)
 
     items = await CRUDItem.get_all_items(
         max_price=maxPrice,
         sort_field=sortField,
         page=page,
         per_page=perPage,
+        category=category,
         details=details,
     )
 
-    count = await CRUDItem.get_items_count(max_price=maxPrice)
-    highest_price = await CRUDItem.get_highest_price()
+    count = await CRUDItem.get_items_count(max_price=maxPrice, category=category)
+    highest_price = await CRUDItem.get_highest_price(category=category)
     return {"count": count, "items": items, "highestPrice": highest_price}
 
 

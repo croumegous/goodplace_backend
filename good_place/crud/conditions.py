@@ -31,7 +31,7 @@ class CRUDCondition:
         return condition
 
     @staticmethod
-    async def get_id_by_condition(condition_name: str) -> uuid.UUID:
+    async def get_id_by_condition_label(condition_name: str) -> uuid.UUID:
         """Return id of a condition by its name/label
 
         Args:

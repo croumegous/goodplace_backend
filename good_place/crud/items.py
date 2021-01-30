@@ -1,6 +1,8 @@
 """
 items CRUD
 """
+# pylint: disable=too-many-arguments
+
 import uuid
 from typing import List
 
@@ -57,6 +59,7 @@ class CRUDItem:
         sort_field: str,
         page: int = 1,
         per_page: int = 50,
+        category: uuid.UUID = None,
         details: bool = True,
     ) -> List[Items]:
         """get list of item with pagination
@@ -73,6 +76,8 @@ class CRUDItem:
         """
         items_query = QuerySet(Items)
 
+        if category is not None:
+            items_query = items_query.filter(category_id=category)
         if max_price is not None:
             items_query = items_query.filter(price__lte=max_price)
         if sort_field:
@@ -121,7 +126,7 @@ class CRUDItem:
         return all_items
 
     @staticmethod
-    async def get_items_count(max_price: int) -> int:
+    async def get_items_count(max_price: int, category: uuid.UUID) -> int:
         """Get total number of items that meet criteria
         Args:
             max_price (int): maximum price of item
@@ -131,15 +136,24 @@ class CRUDItem:
         all_items = QuerySet(Items)
         if max_price is not None:
             all_items = all_items.filter(price__lte=max_price)
+        if category is not None:
+            all_items = all_items.filter(category_id=category)
         return await all_items.count()
 
     @staticmethod
-    async def get_highest_price() -> int:
+    async def get_highest_price(category: uuid.UUID = None) -> int:
         """Get highest price of all items"""
 
         conn = Tortoise.get_connection("default")
-        res = await conn.execute_query("SELECT MAX(price) from items")
-        return res[1][0]["max"]
+        if category is not None:
+            res = await conn.execute_query(
+                f"SELECT MAX(price) from items WHERE category_id='{category}'"
+            )
+        else:
+            res = await conn.execute_query("SELECT MAX(price) from items")
+
+        res = res[1][0]["max"] or 0
+        return res
 
     @staticmethod
     async def create_item(item: SchemaItemCreate, user_id: uuid.UUID) -> Items:
@@ -154,8 +168,8 @@ class CRUDItem:
         item.id = uuid.uuid4() if not item.id else item.id
         condition_id = None
         if item.condition:
-            condition_id = await CRUDCondition.get_id_by_condition(item.condition)
-        category_id = await CRUDCategory.get_id_by_category(item.category)
+            condition_id = await CRUDCondition.get_id_by_condition_label(item.condition)
+        category_id = await CRUDCategory.get_id_by_category_label(item.category)
         db_item = await Items.create(
             id=item.id,
             user_id=user_id,
@@ -183,10 +197,10 @@ class CRUDItem:
         update_data = update_data.dict(exclude_unset=True)
         new_images = update_data.pop("images", [])
 
-        update_data["condition_id"] = await CRUDCondition.get_id_by_condition(
+        update_data["condition_id"] = await CRUDCondition.get_id_by_condition_label(
             update_data.get("condition")
         )
-        update_data["category_id"] = await CRUDCategory.get_id_by_category(
+        update_data["category_id"] = await CRUDCategory.get_id_by_category_label(
             update_data.get("category")
         )
         await CRUDImage.update_images_of_item(new_images, item_id)
