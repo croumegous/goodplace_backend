@@ -93,6 +93,34 @@ class CRUDItem:
         return all_items
 
     @staticmethod
+    async def get_user_items(user_id) -> List[Items]:
+        """get list of item with pagination
+
+        Args:
+            max_price (int): filter result with price can be None
+            sort_field (str): field use to sort by can be None. e.g : +price (ascending price)
+                                                            -created_at (descending created_at)
+            page (int, optional): number of the page to get. Defaults to 1.
+            per_page (int, optional): number of items to show in one page. Defaults to 50.
+            details (bool, opt): if True get details of items like user informations. Default True
+        Returns:
+            List[Items]: list of item model
+        """
+
+        all_items = (
+            await QuerySet(Items)
+            .filter(user_id=user_id)
+            .prefetch_related(
+                "category", "condition", "user", "images", "user__location"
+            )
+        )
+        for item in all_items:
+            if item.user.location.related_objects:
+                item.location = item.user.location.related_objects[0]
+            item.images_list = item.images.related_objects
+        return all_items
+
+    @staticmethod
     async def get_items_count(max_price: int) -> int:
         """Get total number of items that meet criteria
         Args:

@@ -6,7 +6,7 @@ API route for items
 # pylint: disable=no-else-return
 # pylint: disable=line-too-long
 
-from typing import Any, Union
+from typing import Any, List, Union
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -55,6 +55,18 @@ async def read_items(
     return {"count": count, "items": items, "highestPrice": highest_price}
 
 
+# GET /items/me : get curent user items
+@router.get("/me", response_model=Union[List[SchemaFullItem], List[SchemaFullItem]])
+async def read_my_items(current_user: Users = Depends(get_current_user)) -> Any:
+    """
+    Returns list of items of current user with full informations.
+    """
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
+
+    return await CRUDItem.get_user_items(current_user.id)
+
+
 # GET /items/<item_id> : get full information of item by its id
 @router.get("/{item_id}", response_model=SchemaFullItem)
 async def read_full_item(item_id: UUID) -> Any:
@@ -80,14 +92,14 @@ async def create_item(
         raise HTTPException(
             status_code=400, detail="User need to add a location to create items"
         )
-    try:
-        item = await CRUDItem.create_item(item_data, current_user.id)
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error while creating item in database: {exc}",
-        ) from exc
-    return item
+    # try:
+    #     item = await CRUDItem.create_item(item_data, current_user.id)
+    # except Exception as exc:
+    #     raise HTTPException(
+    #         status_code=500,
+    #         detail=f"Error while creating item in database: {exc}",
+    #     ) from exc
+    return await CRUDItem.create_item(item_data, current_user.id)
 
 
 # PUT /items/<item_id> : update current_user location
