@@ -2,17 +2,21 @@
 items CRUD
 """
 # pylint: disable=too-many-arguments
+# pylint: disable=line-too-long
 
 import uuid
 from typing import List
 
 from fastapi import HTTPException
-from tortoise import Tortoise
+from pypika import Table
+from pypika.terms import BasicCriterion
 from tortoise.queryset import QuerySet
 
 from good_place.crud.categories import CRUDCategory
 from good_place.crud.conditions import CRUDCondition
+from good_place.crud.helpers.utils import Comp, to_tsquery
 from good_place.crud.images import CRUDImage
+from good_place.db.custom.custom_queryset import CriterionQuerySet
 from good_place.db.models import Items
 from good_place.schemas.items import SchemaItemCreate
 
@@ -60,6 +64,7 @@ class CRUDItem:
         page: int = 1,
         per_page: int = 50,
         category: uuid.UUID = None,
+        search: str = None,
         details: bool = True,
     ) -> List[Items]:
         """get list of item with pagination
@@ -73,15 +78,33 @@ class CRUDItem:
             details (bool, opt): if True get details of items like user informations. Default True
         Returns:
             List[Items]: list of item model
+            int: number of items
         """
+
         items_query = QuerySet(Items)
 
+        # I'm obliged to override tortoise functions with pypika to use full text search as it is not implemented yet
+        if search:
+            items = Table("items")
+            items_query = CriterionQuerySet(Items)
+            items_query.set_criterion(
+                BasicCriterion(
+                    Comp.match,
+                    items.text_search_vector,
+                    to_tsquery(search.replace(" ", " | ")),
+                )
+            )
         if category is not None:
             items_query = items_query.filter(category_id=category)
+
+        highest_price = await items_query.only("price").order_by("-price").first()
+
         if max_price is not None:
             items_query = items_query.filter(price__lte=max_price)
         if sort_field:
             items_query = items_query.order_by(sort_field)
+
+        count_results = await items_query.count()
 
         items_query = items_query.offset((page - 1) * per_page).limit(per_page)
 
@@ -95,7 +118,10 @@ class CRUDItem:
             if item.user.location.related_objects:
                 item.location = item.user.location.related_objects[0]
             item.images_list = item.images.related_objects
-        return all_items
+
+        if not highest_price:
+            return all_items, count_results, 0
+        return all_items, count_results, highest_price.price
 
     @staticmethod
     async def get_user_items(user_id) -> List[Items]:
@@ -124,36 +150,6 @@ class CRUDItem:
                 item.location = item.user.location.related_objects[0]
             item.images_list = item.images.related_objects
         return all_items
-
-    @staticmethod
-    async def get_items_count(max_price: int, category: uuid.UUID) -> int:
-        """Get total number of items that meet criteria
-        Args:
-            max_price (int): maximum price of item
-        Returns:
-            int: number of items
-        """
-        all_items = QuerySet(Items)
-        if max_price is not None:
-            all_items = all_items.filter(price__lte=max_price)
-        if category is not None:
-            all_items = all_items.filter(category_id=category)
-        return await all_items.count()
-
-    @staticmethod
-    async def get_highest_price(category: uuid.UUID = None) -> int:
-        """Get highest price of all items"""
-
-        conn = Tortoise.get_connection("default")
-        if category is not None:
-            res = await conn.execute_query(
-                f"SELECT MAX(price) from items WHERE category_id='{category}'"
-            )
-        else:
-            res = await conn.execute_query("SELECT MAX(price) from items")
-
-        res = res[1][0]["max"] or 0
-        return res
 
     @staticmethod
     async def create_item(item: SchemaItemCreate, user_id: uuid.UUID) -> Items:
