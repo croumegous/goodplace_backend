@@ -34,6 +34,7 @@ async def read_items(
     perPage: int = Query(50, ge=1, le=CONFIG.get("MAX_INT_32BITS")),
     maxPrice: int = Query(None, ge=0, le=CONFIG.get("MAX_INT_32BITS")),
     category: str = None,
+    search: str = "",
     sortField: str = None,
     details: bool = True,
 ) -> Any:
@@ -45,17 +46,16 @@ async def read_items(
     if category:
         category = await CRUDCategory.get_id_by_category_label(category)
 
-    items = await CRUDItem.get_all_items(
+    items, count, highest_price = await CRUDItem.get_all_items(
         max_price=maxPrice,
         sort_field=sortField,
         page=page,
         per_page=perPage,
         category=category,
+        search=search,
         details=details,
     )
 
-    count = await CRUDItem.get_items_count(max_price=maxPrice, category=category)
-    highest_price = await CRUDItem.get_highest_price(category=category)
     return {"count": count, "items": items, "highestPrice": highest_price}
 
 

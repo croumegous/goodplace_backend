@@ -1,7 +1,6 @@
 """
 Init database session
 """
-
 # pylint: disable=no-member
 from fastapi.applications import FastAPI
 from tortoise.contrib.fastapi import register_tortoise

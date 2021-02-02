@@ -8,6 +8,8 @@ import uuid
 from tortoise import fields
 from tortoise.models import Model
 
+from good_place.db.models.fields.ts_vector_field import TsVectorField
+
 
 class Items(Model):
     """
@@ -26,6 +28,8 @@ class Items(Model):
     description = fields.CharField(max_length=5000, null=False)
     price = fields.IntField(null=False)
     created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+    text_search_vector = TsVectorField(null=True)
 
     # async def to_dict(self):
     #     """

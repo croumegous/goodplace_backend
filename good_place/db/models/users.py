@@ -25,6 +25,7 @@ class Users(Model):
     is_admin = fields.BooleanField(null=False, default=False)
     avatar_url = fields.CharField(max_length=500, null=True)
     created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
 
     def full_name(self) -> str:
         """

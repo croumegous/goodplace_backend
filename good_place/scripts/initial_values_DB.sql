@@ -11,4 +11,5 @@ insert into categories (id, label, image, icon) values (uuid_generate_v4(), 'Pet
 insert into categories (id, label, image, icon) values (uuid_generate_v4(), 'Electronics', 'https://cdn.pixabay.com/photo/2014/09/20/13/52/board-453758_960_720.jpg', 'desktop');
 insert into categories (id, label, image, icon) values (uuid_generate_v4(), 'Sports', 'https://cdn.pixabay.com/photo/2013/03/19/18/23/mountain-biking-95032_960_720.jpg', 'volleyball-ball');
 insert into categories (id, label, image, icon) values (uuid_generate_v4(), 'Clothes', 'https://cdn.pixabay.com/photo/2015/11/07/11/46/fashion-1031469_960_720.jpg', 'tshirt');
+insert into categories (id, label, image, icon) values (uuid_generate_v4(), 'Books', 'https://cdn.pixabay.com/photo/2016/11/29/02/26/books-1866844_960_720.jpg', 'book');
 insert into categories (id, label, image, icon) values (uuid_generate_v4(), 'Others', 'https://cdn.pixabay.com/photo/2016/03/27/22/04/camera-1284459_960_720.jpg', 'ellipsis-h');
