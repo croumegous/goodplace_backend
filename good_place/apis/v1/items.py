@@ -5,6 +5,7 @@ API route for items
 # pylint: disable=too-many-arguments
 # pylint: disable=invalid-name
 
+import re
 from typing import Any, List, Union
 from uuid import UUID
 
@@ -15,7 +16,6 @@ from good_place.core.settings import CONFIG
 from good_place.crud.categories import CRUDCategory
 from good_place.crud.items import CRUDItem
 from good_place.crud.locations import CRUDLocation
-from good_place.crud.users import CRUDUser
 from good_place.db.models import Users
 from good_place.schemas.items import (
     SchemaFullItem,
@@ -36,7 +36,6 @@ async def read_items(
     category: str = None,
     search: str = "",
     sortField: str = None,
-    details: bool = True,
 ) -> Any:
     """
     Returns a list of items with full informations.
@@ -44,7 +43,10 @@ async def read_items(
     if sortField:
         sortField = check_sort_field(SchemaItem, sortField)
     if category:
-        category = await CRUDCategory.get_id_by_category_label(category)
+        try:
+            category = await CRUDCategory.get_id_by_category_label(category)
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail="Invalid category") from exc
 
     items, count, highest_price = await CRUDItem.get_all_items(
         max_price=maxPrice,
@@ -52,8 +54,7 @@ async def read_items(
         page=page,
         per_page=perPage,
         category=category,
-        search=search,
-        details=details,
+        search=re.sub(r"\W+", " ", search).strip(),  # remove special characters
     )
 
     return {"count": count, "items": items, "highestPrice": highest_price}
@@ -146,30 +147,4 @@ async def delete_item_by_id(
         )
 
     item = await CRUDItem.delete_item(item_id)
-    return item
-
-
-############################################################################
-#### ONLY for test purpose before implementaion of get_current user ########
-############################################################################
-
-
-# POST /items/<user_id> : create a new item
-@router.post("/{user_id}", response_model=SchemaItem)
-async def create_item_user_id(item_data: SchemaItemCreate, user_id: UUID) -> Any:
-    """
-    Create item for a user
-    """
-    await CRUDUser.get_user(user_id)
-    if not await CRUDLocation.location_by_user_exists(user_id):
-        raise HTTPException(
-            status_code=400, detail="User need to add a location to create items"
-        )
-    try:
-        item = await CRUDItem.create_item(item_data, user_id)
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error while creating item in database: {exc}",
-        ) from exc
     return item

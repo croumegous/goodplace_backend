@@ -9,7 +9,6 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from good_place.apis.utils import get_current_user
 from good_place.crud.locations import CRUDLocation
-from good_place.crud.users import CRUDUser
 from good_place.db.models import Users
 from good_place.schemas.locations import SchemaLocation, SchemaLocationCreate
 
@@ -40,7 +39,7 @@ async def read_location(loc_id: UUID) -> Any:
 
 
 # POST /locations/ : create a new location
-@router.post("/", response_model=SchemaLocation)
+@router.post("/me", response_model=SchemaLocation)
 async def create_location(
     location_data: SchemaLocationCreate,
     current_user: Users = Depends(get_current_user),
@@ -95,67 +94,6 @@ async def delete_location_me(current_user: Users = Depends(get_current_user)) ->
         raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
     try:
         location = await CRUDLocation.delete_location(current_user.id)
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error while deleting location in database: {exc}",
-        ) from exc
-    return location
-
-
-############################################################################
-#### ONLY for test purpose before implementaion of get_current user ########
-############################################################################
-
-# POST /locations/ : create a new location
-@router.post("/{user_id}", response_model=SchemaLocation)
-async def create_location_user_id(
-    location_data: SchemaLocationCreate, user_id: UUID
-) -> Any:
-    """
-    Create location for user_id
-    """
-    await CRUDUser.get_user(user_id)
-    if await CRUDLocation.location_by_user_exists(user_id):
-        raise HTTPException(
-            status_code=400, detail="A location for this user already exists"
-        )
-    try:
-        location = await CRUDLocation.create_location(location_data, user_id)
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error while creating location in database: {exc}",
-        ) from exc
-    return location
-
-
-# PUT /locations/me : update current_user location
-@router.put("/{user_id}", response_model=SchemaLocation)
-async def update_location_user_id(
-    location_data: SchemaLocationCreate, user_id: UUID
-) -> Any:
-    """
-    Update user_id location
-    """
-    try:
-        location = await CRUDLocation.update_location(location_data, user_id)
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error while updating location in database: {exc}",
-        ) from exc
-    return location
-
-
-# PUT /locations/me : update current_user location
-@router.delete("/{user_id}", response_model=SchemaLocation)
-async def delete_location_user_id(user_id: UUID) -> Any:
-    """
-    Delete user_id location
-    """
-    try:
-        location = await CRUDLocation.delete_location(user_id)
     except Exception as exc:
         raise HTTPException(
             status_code=500,

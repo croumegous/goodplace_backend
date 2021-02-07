@@ -65,7 +65,6 @@ class CRUDItem:
         per_page: int = 50,
         category: uuid.UUID = None,
         search: str = None,
-        details: bool = True,
     ) -> List[Items]:
         """get list of item with pagination
 
@@ -75,16 +74,16 @@ class CRUDItem:
                                                             -created_at (descending created_at)
             page (int, optional): number of the page to get. Defaults to 1.
             per_page (int, optional): number of items to show in one page. Defaults to 50.
-            details (bool, opt): if True get details of items like user informations. Default True
         Returns:
-            List[Items]: list of item model
-            int: number of items
+            all_items (List[Items]): list of item model
+            count_results (int): number of items
+            highest_price.price (int): higgest price of items (all items not only paginated)
         """
 
         items_query = QuerySet(Items)
 
-        # I'm obliged to override tortoise functions with pypika to use full text search as it is not implemented yet
-        if search:
+        # I'm obliged to override tortoise functions with pypika to use full text search as it's not implemented yet
+        if search != "":
             items = Table("items")
             items_query = CriterionQuerySet(Items)
             items_query.set_criterion(
@@ -94,7 +93,7 @@ class CRUDItem:
                     to_tsquery(search.replace(" ", " | ")),
                 )
             )
-        if category is not None:
+        if category:
             items_query = items_query.filter(category_id=category)
 
         # not ideal
@@ -108,9 +107,6 @@ class CRUDItem:
         count_results = await items_query.count()
 
         items_query = items_query.offset((page - 1) * per_page).limit(per_page)
-
-        if not details:
-            return await items_query.all()
 
         all_items = await items_query.prefetch_related(
             "category", "condition", "user", "images", "user__location"
