@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from tortoise.queryset import QuerySet
 
 from good_place.db.models import Categories
+from good_place.schemas.categories import SchemaCategoryCreate
 
 
 class CRUDCategory:
@@ -21,7 +22,7 @@ class CRUDCategory:
         return await QuerySet(Categories).all()
 
     @staticmethod
-    async def create_category(category) -> Categories:
+    async def create_category(category: SchemaCategoryCreate) -> Categories:
         """Create category in database
 
         Args:
@@ -69,3 +70,35 @@ class CRUDCategory:
         if not category_id:
             raise HTTPException(status_code=404, detail="Category not found")
         return category_id.id
+
+    @staticmethod
+    async def update_category(
+        category: Categories, update_data: SchemaCategoryCreate
+    ) -> Categories:
+        """update category in database
+
+        Args:
+            category (Categories): Category to be updated
+            update_data (SchemaCategoryCreate): data to update
+        Returns:
+            Categories: updated category
+        """
+
+        update_data = update_data.dict(exclude_unset=True)
+        category.update_from_dict(update_data)
+        await category.save(force_update=False)
+        return category
+
+    @staticmethod
+    async def delete_category(category_id: uuid.UUID) -> Categories:
+        """Delete a user in database by its id
+
+        Args:
+            category_id (uuid.UUID): category id of the category to delete
+        Returns:
+            Categories: deleted category
+        """
+        category = await CRUDCategory.get_category_by_id(category_id)
+        await category.delete()
+
+        return category

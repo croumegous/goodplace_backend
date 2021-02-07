@@ -15,18 +15,18 @@ from pydantic import BaseModel
 from good_place.core.security import ALGORITHM
 from good_place.core.settings import CONFIG
 from good_place.crud.users import CRUDUser
-from good_place.schemas.users import SchemaUser
+from good_place.db.models import Users
 
 
-async def get_current_user(token: str = Depends(HTTPBearer())) -> Optional[SchemaUser]:
+async def get_current_user(token: str = Depends(HTTPBearer())) -> Optional[Users]:
     """
-    Parse the JWT token included in the authorization header and returns a SchemaUser object
+    Parse the JWT token included in the authorization header and returns a Users object
     which contains information about the currently logged in user
 
     Args:
         Authorization token
     Returns:
-        A SchemaUser or None if unable to find/parse a jwt token
+        A Users object or None if unable to find/parse a jwt token
     """
     try:
         payload = jwt.decode(
@@ -49,6 +49,27 @@ async def get_current_user(token: str = Depends(HTTPBearer())) -> Optional[Schem
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+async def get_current_admin(
+    current_user: Users = Depends(get_current_user),
+) -> Optional[Users]:
+    """
+    Check if current user is admin
+
+    Args:
+        current_user (Users): current user
+    Raises:
+        HTTP error 403 if current user is not admin
+    Returns:
+        A Users object if user is admin
+    """
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=403, detail="Forbiden user doesn't have enough privileges"
+        )
+
+    return current_user
 
 
 async def verify_refresh_token(refresh_token: str) -> str:

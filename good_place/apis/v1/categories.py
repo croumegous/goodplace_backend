@@ -3,10 +3,11 @@ API route for categories
 """
 # pylint: disable=missing-function-docstring
 from typing import List
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
-from good_place.apis.utils import get_current_user
+from good_place.apis.utils import get_current_admin
 from good_place.crud.categories import CRUDCategory
 from good_place.db.models import Users
 from good_place.schemas.categories import SchemaCategory, SchemaCategoryCreate
@@ -23,11 +24,27 @@ async def get_categories():
 # POST /categories/ : create a new category (admin only)
 @router.post("/", response_model=SchemaCategory)
 async def create_category(
-    category: SchemaCategoryCreate, current_user: Users = Depends(get_current_user)
+    category: SchemaCategoryCreate, _: Users = Depends(get_current_admin)
 ):
-    if not current_user.is_admin:
-        raise HTTPException(
-            status_code=403, detail="Forbiden user doesn't have enough privileges"
-        )
-
     return await CRUDCategory.create_category(category)
+
+
+# PUT /categories/<category_id> : update a category by its id (admin only)
+@router.put("/{category_id}", response_model=SchemaCategory)
+async def update_category(
+    category_id: UUID,
+    category: SchemaCategoryCreate,
+    _: Users = Depends(get_current_admin),
+):
+
+    old_category = await CRUDCategory.get_category_by_id(category_id)
+    return await CRUDCategory.update_category(old_category, category)
+
+
+# DELETE /categories/<category_id> : delete a category by its id only available for admin
+@router.delete("/{category_id}", response_model=SchemaCategory)
+async def delete_category_by_id(
+    category_id: UUID, _: Users = Depends(get_current_admin)
+):
+
+    return await CRUDCategory.delete_category(category_id)
