@@ -4,7 +4,7 @@ API route for users
 # pylint: disable=unused-argument
 # pylint: disable=fixme
 # pylint: disable=invalid-name
-from typing import Any, List, Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -13,7 +13,7 @@ from good_place.apis.utils import get_current_user
 from good_place.core.settings import CONFIG
 from good_place.crud.users import CRUDUser
 from good_place.db.models import Users
-from good_place.schemas.users import SchemaUser, SchemaUserCreate
+from good_place.schemas.users import SchemaUser, SchemaUserCreate, SchemaUserList
 
 router = APIRouter()
 
@@ -21,7 +21,7 @@ router = APIRouter()
 # TODO verify permission acces
 
 # GET /users/ : get all users
-@router.get("/", response_model=List[SchemaUser])
+@router.get("/", response_model=SchemaUserList)
 async def read_users(
     page: int = Query(1, ge=1, le=CONFIG.get("MAX_INT_32BITS")),
     perPage: int = Query(50, ge=1, le=CONFIG.get("MAX_INT_32BITS")),
@@ -34,7 +34,9 @@ async def read_users(
         raise HTTPException(
             status_code=403, detail="Forbiden user doesn't have enough privileges"
         )
-    return await CRUDUser.get_all_users(page=page, per_page=perPage)
+    all_users, count_users = await CRUDUser.get_all_users(page=page, per_page=perPage)
+
+    return {"users": all_users, "count": count_users}
 
 
 # POST /users/ : create a new user

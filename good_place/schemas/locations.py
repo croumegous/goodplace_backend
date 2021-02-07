@@ -2,8 +2,10 @@
 Locations schema
 """
 
-# pylint: disable-all
 import re
+
+# pylint: disable-all
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -24,6 +26,8 @@ class SchemaLocation(BaseModel):
     street_number: Optional[str]
     address_complement: Optional[str]
     postal_code: str
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
 
     class Config:
         orm_mode = True

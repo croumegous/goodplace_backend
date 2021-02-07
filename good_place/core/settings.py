@@ -25,7 +25,7 @@ CONFIG = {
         f"{os.getenv('DB_ENGINE')}://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
         f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_DATABASE_TEST')}"
     ),
-    "MAX_INT_32BITS": int(os.getenv("MAX_INT_32BITS")),
+    "MAX_INT_32BITS": 2_147_483_647,
     "ACCESS_TOKEN_SECRET_KEY": os.getenv("ACCESS_TOKEN_SECRET_KEY"),
     "REFRESH_TOKEN_SECRET_KEY": os.getenv("REFRESH_TOKEN_SECRET_KEY"),
     "JWT_EXPIRE_TIME": int(os.getenv("JWT_EXPIRE_TIME", "15")),

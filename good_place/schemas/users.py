@@ -5,7 +5,7 @@ Users schema
 # pylint: disable-all
 import re
 from datetime import datetime
-from typing import Optional, Union
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, HttpUrl, constr, validator
@@ -25,9 +25,19 @@ class SchemaUser(BaseModel):
     is_admin: bool
     avatar_url: Optional[HttpUrl]
     created_at: Optional[datetime]
+    updated_at: Optional[datetime]
 
     class Config:
         orm_mode = True
+
+
+class SchemaUserList(BaseModel):
+    """
+    Basic schema for list of user
+    """
+
+    users: List[SchemaUser]
+    count: int
 
 
 class SchemaUserCreate(BaseModel):

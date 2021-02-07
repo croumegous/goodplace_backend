@@ -97,6 +97,7 @@ class CRUDItem:
         if category is not None:
             items_query = items_query.filter(category_id=category)
 
+        # not ideal
         highest_price = await items_query.only("price").order_by("-price").first()
 
         if max_price is not None:

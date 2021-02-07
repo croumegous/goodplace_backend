@@ -3,7 +3,6 @@ Items schema
 """
 # pylint: disable-all
 from datetime import datetime
-from enum import Enum
 from typing import Any, List, Optional
 from uuid import UUID
 
@@ -29,6 +28,7 @@ class SchemaItem(BaseModel):
     description: str
     price: int
     created_at: datetime
+    updated_at: Optional[datetime]
 
     class Config:
         orm_mode = True
@@ -71,6 +71,7 @@ class SchemaFullItem(BaseModel):
     description: str
     price: int
     created_at: datetime
+    updated_at: Optional[datetime]
 
     class Config:
         orm_mode = True

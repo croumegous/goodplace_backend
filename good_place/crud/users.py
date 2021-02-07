@@ -28,7 +28,12 @@ class CRUDUser:
         Returns:
             List[Users]: Users models
         """
-        return await QuerySet(Users).offset((page - 1) * per_page).limit(per_page).all()
+        count_users = await QuerySet(Users).count()
+        all_users = (
+            await QuerySet(Users).offset((page - 1) * per_page).limit(per_page).all()
+        )
+
+        return all_users, count_users
 
     @staticmethod
     async def get_user(user_id: uuid.UUID) -> Users:
