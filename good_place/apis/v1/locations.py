@@ -74,17 +74,11 @@ async def update_location_me(
     """
     if not current_user:
         raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
-    try:
-        location = await CRUDLocation.update_location(location_data, current_user.id)
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error while updating location in database: {exc}",
-        ) from exc
-    return location
+
+    return await CRUDLocation.update_location(location_data, current_user.id)
 
 
-# PUT /locations/me : update current_user location
+# DELETE /locations/me : delete current_user location
 @router.delete("/me", response_model=SchemaLocation)
 async def delete_location_me(current_user: Users = Depends(get_current_user)) -> Any:
     """
@@ -92,6 +86,7 @@ async def delete_location_me(current_user: Users = Depends(get_current_user)) ->
     """
     if not current_user:
         raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
+    await CRUDLocation.get_location_by_user(current_user.id)
     try:
         location = await CRUDLocation.delete_location(current_user.id)
     except Exception as exc:

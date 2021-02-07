@@ -53,7 +53,6 @@ class SchemaUserCreate(BaseModel):
     avatar_url: Optional[HttpUrl]
     nickname: constr(min_length=2)
     password: constr(min_length=8)
-    is_admin: Optional[bool]
 
     @validator("first_name", "last_name", "phone_number", "nickname")
     def validate_user(cls, value):

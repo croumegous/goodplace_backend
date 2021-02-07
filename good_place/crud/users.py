@@ -120,7 +120,6 @@ class CRUDUser:
         Returns:
             Users: user model newly created
         """
-        user.is_admin = False if not user.is_admin else user.is_admin
         user.id = uuid.uuid4() if not user.id else user.id
         db_user = await Users.create(
             id=user.id,
@@ -131,7 +130,7 @@ class CRUDUser:
             avatar_url=user.avatar_url,
             nickname=user.nickname,
             password=get_password_hashed(user.password),
-            is_admin=user.is_admin,
+            is_admin=False,
         )
         return db_user
 

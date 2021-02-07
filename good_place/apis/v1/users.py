@@ -71,14 +71,8 @@ async def update_user_me(
     """
     user = await CRUDUser.get_user(current_user.id)
     await CRUDUser.check_no_duplicate_user(user_data, current_user.id)
-    try:
-        user = await CRUDUser.update_user(user, user_data)
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error while updating user in database: {exc}",
-        ) from exc
-    return user
+
+    return await CRUDUser.update_user(user, user_data)
 
 
 # DELETE /users/{user_id} : delete a user by its id only available for admin

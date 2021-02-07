@@ -47,7 +47,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Return:
         Boolean: True if password are equivalent, otherwise return False
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(
+        plain_password.strip(r"\x00"), hashed_password.strip(r"\x00")
+    )
 
 
 def get_password_hashed(password: str) -> str:
@@ -59,4 +61,4 @@ def get_password_hashed(password: str) -> str:
     Return:
         String: the hashed password
     """
-    return pwd_context.hash(password)
+    return pwd_context.hash(password.strip(r"\x00"))

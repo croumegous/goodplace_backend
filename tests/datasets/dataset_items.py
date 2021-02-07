@@ -57,7 +57,6 @@ users = (
         "email": "hellomail@example.com",
         "password": "notsohashedpassword",
         "phone_number": "0505050505",
-        "is_admin": True,
     },
     {
         "id": USER_ID1,
