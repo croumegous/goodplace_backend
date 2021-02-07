@@ -202,7 +202,7 @@ class CRUDItem:
         update_data.pop("condition", None)
         update_data.pop("category", None)
         item.update_from_dict(update_data)
-        await item.save(force_update=False)
+        await item.save(force_update=True)
         return item
 
     @staticmethod

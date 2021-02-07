@@ -8,7 +8,7 @@ from typing import Any
 from tortoise import fields
 
 
-class TsVectorField(fields.Field):
+class TsVectorField(fields.Field, str):
     """
     Custom field to use TsVector in DB
     """

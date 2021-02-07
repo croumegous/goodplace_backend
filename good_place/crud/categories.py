@@ -86,7 +86,7 @@ class CRUDCategory:
 
         update_data = update_data.dict(exclude_unset=True)
         category.update_from_dict(update_data)
-        await category.save(force_update=False)
+        await category.save(force_update=True)
         return category
 
     @staticmethod

@@ -23,7 +23,7 @@ class SchemaUser(BaseModel):
     phone_number: Optional[str]
     nickname: str
     is_admin: bool
-    avatar_url: Optional[HttpUrl]
+    avatar_url: Optional[str]
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
 
@@ -50,13 +50,13 @@ class SchemaUserCreate(BaseModel):
     last_name: constr(min_length=2)
     email: EmailStr
     phone_number: Optional[str]
-    avatar_url: Optional[HttpUrl]
+    avatar_url: Optional[str]
     nickname: constr(min_length=2)
     password: constr(min_length=8)
 
     @validator("first_name", "last_name", "phone_number", "nickname")
     def validate_user(cls, value):
-        if not re.match(r"[\w-]+", value):
+        if not re.match(r"[\w-]*", value):
             raise ValueError(f"{value} is not alphanumeric")
         return value
 

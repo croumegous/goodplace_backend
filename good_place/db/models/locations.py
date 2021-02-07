@@ -28,4 +28,5 @@ class Locations(Model):
     street_number = fields.CharField(max_length=20, null=True)
     address_complement = fields.CharField(max_length=100, null=True)
     postal_code = fields.CharField(max_length=20, null=False)
+    created_at = fields.DatetimeField(auto_now_add=True)
     updated_at = fields.DatetimeField(auto_now=True)

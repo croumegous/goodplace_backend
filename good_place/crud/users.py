@@ -150,7 +150,7 @@ class CRUDUser:
             update_data.password = get_password_hashed(update_data.password)
         update_data = update_data.dict(exclude_unset=True)
         user.update_from_dict(update_data)
-        await user.save(force_update=False)
+        await user.save(force_update=True)
         return user
 
     @staticmethod

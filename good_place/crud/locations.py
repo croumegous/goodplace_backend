@@ -104,7 +104,7 @@ class CRUDLocation:
         update_data = update_data.dict(exclude_unset=True)
         location = await CRUDLocation.get_location_by_user(user_id)
         location.update_from_dict(update_data)
-        await location.save(force_update=False)
+        await location.save(force_update=True)
         return location
 
     @staticmethod

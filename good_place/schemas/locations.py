@@ -60,6 +60,6 @@ class SchemaLocationCreate(BaseModel):
         "postal_code",
     )
     def validate_location(cls, value):
-        if not re.match(r"[\w-]+", value):
+        if not re.match(r"[\w-]*", value):
             raise ValueError(f"{value} is not alphanumeric")
         return value
