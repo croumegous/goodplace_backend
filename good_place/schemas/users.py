@@ -80,7 +80,7 @@ class SchemaUserLogin(BaseModel):
 
     @validator("password")
     def validate_password(cls, value):
-        if not re.match(r"[\w@_!#$%^&*=()<>?/|}{~:\]\\\[]+", value):
+        if not re.match(r"[\w@_!#$%^&*=()<>?\/|}{~:\]\\[\"\'À-ú,._0-9 ()\-\+;]", value):
             raise ValueError(f"{value} contains unsupported character")
         return value
 

@@ -27,6 +27,7 @@ before_script:
 stages:
   - validation
   - test
+  - deploy
 
 
 ###### VALIDATION ######
@@ -65,3 +66,13 @@ test:schemathesis:
     - poetry run aerich upgrade
     - poetry run pytest -v -m schemathesis --no-cov
   allow_failure: true
+
+###### DEPLOY ###### 
+deploy:dokku:
+  image: ilyasemenov/gitlab-ci-git-push
+  stage: deploy
+  before_script:
+    - set -x
+  script:     
+    - git-push dokku@162.38.112.122:backend-goodplace $CI_COMMIT_REF_NAME
+  when: manual

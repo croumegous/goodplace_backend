@@ -1,0 +1,1 @@
+web: uvicorn good_place.main:app --host 0.0.0.0 --port 80
