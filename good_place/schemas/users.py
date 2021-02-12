@@ -45,7 +45,6 @@ class SchemaUserCreate(BaseModel):
     Schema for user creation
     """
 
-    id: Optional[UUID]
     first_name: constr(min_length=2)
     last_name: constr(min_length=2)
     email: EmailStr

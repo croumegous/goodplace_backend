@@ -120,9 +120,8 @@ class CRUDUser:
         Returns:
             Users: user model newly created
         """
-        user.id = uuid.uuid4() if not user.id else user.id
         db_user = await Users.create(
-            id=user.id,
+            id=uuid.uuid4(),
             first_name=user.first_name,
             last_name=user.last_name,
             email=user.email,

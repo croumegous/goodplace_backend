@@ -75,9 +75,8 @@ class CRUDLocation:
         Returns:
             Locations: newly created location model
         """
-        location.id = uuid.uuid4() if not location.id else location.id
         db_location = await Locations.create(
-            id=location.id,
+            id=uuid.uuid4(),
             user_id=user_id,
             country=location.country,
             state=location.state,

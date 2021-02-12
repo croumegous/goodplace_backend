@@ -38,7 +38,6 @@ class SchemaLocationCreate(BaseModel):
     Schema for user creation
     """
 
-    id: Optional[UUID]
     country: constr(min_length=2)
     state: Optional[str]
     city: constr(min_length=2)

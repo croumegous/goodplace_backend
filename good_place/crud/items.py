@@ -158,13 +158,12 @@ class CRUDItem:
         Returns:
             Items: Newly created item model
         """
-        item.id = uuid.uuid4() if not item.id else item.id
         condition_id = None
         if item.condition:
             condition_id = await CRUDCondition.get_id_by_condition_label(item.condition)
         category_id = await CRUDCategory.get_id_by_category_label(item.category)
         db_item = await Items.create(
-            id=item.id,
+            id=uuid.uuid4(),
             user_id=user_id,
             condition_id=condition_id,
             category_id=category_id,

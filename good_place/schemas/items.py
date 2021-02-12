@@ -39,7 +39,6 @@ class SchemaItemCreate(BaseModel):
     Schema for items creation
     """
 
-    id: Optional[UUID]
     condition: Optional[str]
     category: str
     images: Optional[List[HttpUrl]]

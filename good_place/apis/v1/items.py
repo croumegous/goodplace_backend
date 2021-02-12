@@ -97,13 +97,6 @@ async def create_item(
         raise HTTPException(
             status_code=400, detail="User need to add a location to create items"
         )
-    # try:
-    #     item = await CRUDItem.create_item(item_data, current_user.id)
-    # except Exception as exc:
-    #     raise HTTPException(
-    #         status_code=500,
-    #         detail=f"Error while creating item in database: {exc}",
-    #     ) from exc
     return await CRUDItem.create_item(item_data, current_user.id)
 
 
