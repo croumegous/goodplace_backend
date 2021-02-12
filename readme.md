@@ -39,4 +39,4 @@ Core and useful functions for the project
 
 
 # Usage 
-You can find documentation of api endpoints on `http://host:port/docs`
+You can find documentation of api endpoints in production here: https://api.goodplace.cyril-roumegous.com/docs 

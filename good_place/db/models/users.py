@@ -20,7 +20,7 @@ class Users(Model):
     last_name = fields.CharField(max_length=50, null=False)
     email = fields.CharField(max_length=255, null=False, unique=True)
     phone_number = fields.CharField(max_length=20, null=True, unique=True)
-    nickname = fields.CharField(max_length=20, null=False, unique=True)
+    nickname = fields.CharField(max_length=50, null=False, unique=True)
     password = fields.CharField(max_length=60, null=False)
     is_admin = fields.BooleanField(null=False, default=False)
     avatar_url = fields.CharField(max_length=500, null=True)

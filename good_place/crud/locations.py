@@ -107,15 +107,11 @@ class CRUDLocation:
         return location
 
     @staticmethod
-    async def delete_location(user_id: uuid.UUID) -> Locations:
+    async def delete_location(user_id: uuid.UUID):
         """Delete location in database
 
         Args:
             user_id (uuid.UUID): user id to whom delete the location
-        Returns:
-            Locations: deleted location model
         """
         location = await CRUDLocation.get_location_by_user(user_id)
-        await location.delete()
-
-        return location
+        return await location.delete()

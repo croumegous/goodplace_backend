@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS "users" (
     "last_name" VARCHAR(50) NOT NULL,
     "email" VARCHAR(255) NOT NULL UNIQUE,
     "phone_number" VARCHAR(20)  UNIQUE,
-    "nickname" VARCHAR(20) NOT NULL UNIQUE,
+    "nickname" VARCHAR(50) NOT NULL UNIQUE,
     "password" VARCHAR(60) NOT NULL,
     "is_admin" BOOL NOT NULL  DEFAULT False,
     "avatar_url" VARCHAR(500),

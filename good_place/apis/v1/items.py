@@ -83,7 +83,7 @@ async def read_full_item(item_id: UUID) -> Any:
 
 # POST /items/ : create a new item
 # add current_user: Users = Depends(get_current_user)
-@router.post("/", response_model=SchemaItem)
+@router.post("/", response_model=SchemaItem, status_code=201)
 async def create_item(
     item_data: SchemaItemCreate,
     current_user: Users = Depends(get_current_user),
@@ -124,7 +124,7 @@ async def update_item(
 
 
 # PUT /items/<item_id> : update current_user location
-@router.delete("/{item_id}", response_model=SchemaItem)
+@router.delete("/{item_id}", status_code=204)
 async def delete_item_by_id(
     item_id: UUID, current_user: Users = Depends(get_current_user)
 ) -> Any:
@@ -139,5 +139,4 @@ async def delete_item_by_id(
             status_code=403, detail="Forbiden user doesn't have enough privileges"
         )
 
-    item = await CRUDItem.delete_item(item_id)
-    return item
+    return await CRUDItem.delete_item(item_id)

@@ -153,18 +153,14 @@ class CRUDUser:
         return user
 
     @staticmethod
-    async def delete_user(user_id: uuid.UUID) -> Users:
+    async def delete_user(user_id: uuid.UUID):
         """Delete a user in database by its id
 
         Args:
             user_id (uuid.UUID): user id of the user to delete
-        Returns:
-            Users: deleted user model
         """
         user = await CRUDUser.get_user(user_id)
-        await user.delete()
-
-        return user
+        return await user.delete()
 
     @staticmethod
     async def check_no_duplicate_user(

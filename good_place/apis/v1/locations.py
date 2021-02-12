@@ -39,7 +39,7 @@ async def read_location(loc_id: UUID) -> Any:
 
 
 # POST /locations/ : create a new location
-@router.post("/me", response_model=SchemaLocation)
+@router.post("/me", response_model=SchemaLocation, status_code=201)
 async def create_location(
     location_data: SchemaLocationCreate,
     current_user: Users = Depends(get_current_user),
@@ -79,19 +79,19 @@ async def update_location_me(
 
 
 # DELETE /locations/me : delete current_user location
-@router.delete("/me", response_model=SchemaLocation)
+@router.delete("/me", status_code=204)
 async def delete_location_me(current_user: Users = Depends(get_current_user)) -> Any:
     """
-    Delte current_user location
+    Delete current_user location
     """
     if not current_user:
         raise HTTPException(status_code=401, detail="Unauthorized need a logged user")
     await CRUDLocation.get_location_by_user(current_user.id)
     try:
-        location = await CRUDLocation.delete_location(current_user.id)
+        await CRUDLocation.delete_location(current_user.id)
     except Exception as exc:
         raise HTTPException(
             status_code=500,
             detail=f"Error while deleting location in database: {exc}",
         ) from exc
-    return location
+    return

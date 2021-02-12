@@ -15,6 +15,9 @@ router = APIRouter()
 # POST /auth/login : allow user to login with email and password
 @router.post("/login")
 async def login(login_data: SchemaUserLogin):
+    """
+    Login with email and password
+    """
     user = await CRUDUser.get_user_by_email(login_data.email)
     if not user:
         raise HTTPException(status_code=401, detail="Bad username or password")
@@ -29,7 +32,9 @@ async def login(login_data: SchemaUserLogin):
 
 @router.post("/refresh_token")
 async def refresh(payload: SchemaRefreshToken):
-
+    """
+    Refresh acces_token
+    """
     user_id = await verify_refresh_token(payload.refresh_token)
 
     access_token = create_jwt_token(subject=user_id)

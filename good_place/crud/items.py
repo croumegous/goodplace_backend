@@ -162,8 +162,9 @@ class CRUDItem:
         if item.condition:
             condition_id = await CRUDCondition.get_id_by_condition_label(item.condition)
         category_id = await CRUDCategory.get_id_by_category_label(item.category)
+        item_id = uuid.uuid4()
         db_item = await Items.create(
-            id=uuid.uuid4(),
+            id=item_id,
             user_id=user_id,
             condition_id=condition_id,
             category_id=category_id,
@@ -172,7 +173,7 @@ class CRUDItem:
             price=item.price,
         )
         if item.images:
-            await CRUDImage.create_image_for_item(item.images, item.id)
+            await CRUDImage.create_image_for_item(item.images, item_id)
 
         return db_item
 
@@ -205,15 +206,11 @@ class CRUDItem:
         return item
 
     @staticmethod
-    async def delete_item(item_id: uuid.UUID) -> Items:
+    async def delete_item(item_id: uuid.UUID):
         """Delete an item in database by its id
 
         Args:
             item_id (uuid.UUID): item id to delete
-        Returns:
-            Items: deleted item model
         """
         item = await CRUDItem.get_item(item_id, details=False)
-        await item.delete()
-
-        return item
+        return await item.delete()

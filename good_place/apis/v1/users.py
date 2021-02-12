@@ -34,7 +34,7 @@ async def read_users(
 
 
 # POST /users/ : create a new user
-@router.post("/", response_model=SchemaUser)
+@router.post("/", response_model=SchemaUser, status_code=201)
 async def create_user(user_data: SchemaUserCreate) -> Any:
     """
     Create new user
@@ -76,7 +76,7 @@ async def update_user_me(
 
 
 # DELETE /users/{user_id} : delete a user by its id only available for admin
-@router.delete("/{user_id}", response_model=SchemaUser)
+@router.delete("/{user_id}", status_code=204)
 async def delete_user_by_id(
     user_id: UUID, current_user: Users = Depends(get_current_user)
 ) -> Any:

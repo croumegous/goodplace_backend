@@ -90,15 +90,11 @@ class CRUDCategory:
         return category
 
     @staticmethod
-    async def delete_category(category_id: uuid.UUID) -> Categories:
+    async def delete_category(category_id: uuid.UUID):
         """Delete a user in database by its id
 
         Args:
             category_id (uuid.UUID): category id of the category to delete
-        Returns:
-            Categories: deleted category
         """
         category = await CRUDCategory.get_category_by_id(category_id)
-        await category.delete()
-
-        return category
+        return await category.delete()

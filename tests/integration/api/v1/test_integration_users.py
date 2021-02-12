@@ -14,18 +14,19 @@ from tests.utils import get_header_authentication
 def test_user(client: TestClient, users_data: Dict[str, Any]):
 
     response = client.post(
-        "/api/v1/users", data=json.dumps(users_data), allow_redirects=True
+        "/api/v1/users/", data=json.dumps(users_data), allow_redirects=True
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
 
-    headers = get_header_authentication(users_data["id"])
+    user_id = response.json().get("id")
+    headers = get_header_authentication(user_id)
 
-    user_id = users_data.get("id")
     assert Users.exists(id=user_id)
+
     response = client.get(f"/api/v1/users/me", allow_redirects=True, headers=headers)
     assert response.status_code == 200
 
     response = client.delete(
         f"/api/v1/users/{user_id}", allow_redirects=True, headers=headers
     )
-    assert response.status_code == 200
+    assert response.status_code == 204

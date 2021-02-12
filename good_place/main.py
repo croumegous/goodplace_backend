@@ -32,13 +32,12 @@ async def root():
 
 @app.on_event("startup")
 async def startup_event():
-    print("Starting up...")
     init_db(app)
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    print("Shutting down...")
+    pass
 
 
 app.include_router(api_router, prefix=CONFIG.get("API_V1_STR"))
